@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetHack Command Interface</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .command-form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .results {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: none;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 70%;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .screen-display {
+            background-color: black;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .game-image {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .game-image img {
+            max-width: 100%;
+            border: 1px solid #ccc;
+        }
+        .response-data {
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+        h2 {
+            margin-top: 0;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .history {
+            margin-top: 20px;
+        }
+        .history-item {
+            margin-bottom: 5px;
+            cursor: pointer;
+            color: #0066cc;
+        }
+        .history-item:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>NetHack Command Interface</h1>
+    
+    <div class="container">
+        <div class="command-form">
+            <h2>Enter Command</h2>
+            <form id="commandForm">
+                <input type="text" id="commandInput" placeholder="Enter NetHack command (e.g., 'h', 'j', 'k', 'l', '@', etc.)" required>
+                <button type="submit">Submit</button>
+            </form>
+            <div class="history" id="commandHistory">
+                <h3>Command History:</h3>
+                <div id="historyItems"></div>
+            </div>
+        </div>
+        
+        <div class="loading" id="loadingIndicator">
+            Processing command...
+        </div>
+        
+        <div class="results" id="resultsContainer">
+            <h2>Game State</h2>
+            
+            <div class="game-image">
+                <img id="gameImage" alt="NetHack Game Screen">
+            </div>
+            
+            <h3>Screen Text</h3>
+            <div class="screen-display" id="screenText"></div>
+            
+            <h3>Response Data</h3>
+            <pre class="response-data" id="responseData"></pre>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const commandForm = document.getElementById('commandForm');
+            const commandInput = document.getElementById('commandInput');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const gameImage = document.getElementById('gameImage');
+            const screenText = document.getElementById('screenText');
+            const responseData = document.getElementById('responseData');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const historyItems = document.getElementById('historyItems');
+            
+            // Command history
+            const commandHistory = [];
+            
+            // Send initial empty command to get the starting state
+            fetchCommand('');
+            
+            commandForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const command = commandInput.value.trim();
+                if (command) {
+                    // Add to history
+                    addToHistory(command);
+                    // Send command
+                    fetchCommand(command);
+                    // Clear input
+                    commandInput.value = '';
+                }
+            });
+            
+            function fetchCommand(command) {
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
+                resultsContainer.style.display = 'none';
+                
+                // Fetch from API
+                fetch(`/api/command?command=${encodeURIComponent(command)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Hide loading indicator
+                        loadingIndicator.style.display = 'none';
+                        resultsContainer.style.display = 'block';
+                        
+                        // Display the image
+                        gameImage.src = `data:image/png;base64,${data.img_base64}`;
+                        
+                        // Display the screen text
+                        screenText.textContent = data.screen;
+                        
+                        // Display other response data (excluding the large base64 string)
+                        const displayData = {...data};
+                        displayData.img_base64 = '[Base64 image data]'; // Replace with placeholder
+                        responseData.textContent = JSON.stringify(displayData, null, 2);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        loadingIndicator.style.display = 'none';
+                        alert('Error fetching data: ' + error.message);
+                    });
+            }
+            
+            function addToHistory(command) {
+                // Add to the beginning of the array
+                commandHistory.unshift(command);
+                
+                // Keep only the last 10 commands
+                if (commandHistory.length > 10) {
+                    commandHistory.pop();
+                }
+                
+                // Update the UI
+                updateHistoryUI();
+            }
+            
+            function updateHistoryUI() {
+                historyItems.innerHTML = '';
+                commandHistory.forEach(cmd => {
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.textContent = cmd;
+                    item.addEventListener('click', function() {
+                        commandInput.value = cmd;
+                    });
+                    historyItems.appendChild(item);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

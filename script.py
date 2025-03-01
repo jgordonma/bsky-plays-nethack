@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import gym
 import nle
 import logging
@@ -67,27 +67,7 @@ def process_command():
 
 @app.route('/', methods=['GET'])
 def home():
-    return """
-    <html>
-        <head>
-            <title>Command API</title>
-            <style>
-                body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-                pre { background-color: #f5f5f5; padding: 10px; border-radius: 5px; }
-            </style>
-        </head>
-        <body>
-            <h1>Command API</h1>
-            <p>Send a POST request to <code>/api/command</code> with a JSON body containing a "Command" field.</p>
-            <h2>Example:</h2>
-            <pre>
-curl -X POST http://localhost:5000/api/command \\
-    -H "Content-Type: application/json" \\
-    -d '{"Command": "hello world"}'
-            </pre>
-        </body>
-    </html>
-    """
+    return render_template('index.html')
 
 def text_to_image(text, font_size=15):
     """Convert text to an image with white text on black background"""
