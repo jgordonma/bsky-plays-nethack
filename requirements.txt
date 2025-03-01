@@ -9,3 +9,5 @@ gymnasium==1.0.0
 nle==0.9.0
 nle-language-wrapper
 Pillow
+atproto
+dotenv
