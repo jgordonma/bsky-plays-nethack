@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetHack Command Interface</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>NetHack Command Interface</h1>
+    
+    <div class="container">
+        <div class="command-form">
+            <h2>Enter Command</h2>
+            <form id="commandForm">
+                <input type="text" id="commandInput" placeholder="Enter NetHack command (e.g., 'h', 'j', 'k', 'l', '@', etc.)" required>
+                <button type="submit">Submit</button>
+            </form>
+            <div class="history" id="commandHistory">
+                <h3>Command History:</h3>
+                <div id="historyItems"></div>
+            </div>
+        </div>
+        
+        <div class="loading" id="loadingIndicator">
+            Processing command...
+        </div>
+        
+        <div class="results" id="resultsContainer">
+            <h2>Game State</h2>
+            
+            <div class="game-image">
+                <img id="gameImage" alt="NetHack Game Screen">
+            </div>
+            
+            <h3 class="hidden">Screen Text</h3>
+            <div class="screen-display hidden" id="screenText"></div>
+            
+            <h3>Game Information</h3>
+            <div class="response-data" id="responseData"></div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

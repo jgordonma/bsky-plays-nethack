@@ -22,7 +22,7 @@ consoleHandler.setFormatter(logFormatter)
 rootLogger.addHandler(consoleHandler)
 
 #Instantiate global variables for app.  I know, this is bad and I shouldn't be using globals, don't @ me.
-app = Flask(__name__)
+app = Flask(__name__, template_folder='/app/templates')
 env = NLELanguageWrapper(gym.make("NetHackChallenge-v0"))
 obsv = env.reset()
 

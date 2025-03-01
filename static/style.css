@@ -1,0 +1,167 @@
+body {
+    font-family: 'Courier New', monospace;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f0f0f0;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.command-form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.results {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    display: none;
+}
+
+input[type="text"] {
+    padding: 10px;
+    width: 70%;
+    font-family: 'Courier New', monospace;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.screen-display {
+    background-color: black;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    white-space: pre;
+    font-family: 'Courier New', monospace;
+    overflow-x: auto;
+}
+
+.game-image {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.game-image img {
+    max-width: 100%;
+    border: 1px solid #ccc;
+}
+
+.response-data {
+    background-color: #f8f8f8;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 20px;
+    overflow-x: auto;
+}
+
+h2 {
+    margin-top: 0;
+}
+
+.loading {
+    display: none;
+    text-align: center;
+    padding: 20px;
+}
+
+.history {
+    margin-top: 20px;
+}
+
+.history-item {
+    margin-bottom: 5px;
+    cursor: pointer;
+    color: #0066cc;
+}
+
+.history-item:hover {
+    text-decoration: underline;
+}
+
+.hidden {
+    display: none;
+}
+
+.game-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.info-section {
+    background-color: #f8f8f8;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+}
+
+.info-section h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.message-box {
+    background-color: #fffbf0;
+    border-left: 4px solid #ffc107;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.stat-item {
+    background-color: #e9f5e9;
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+
+.inventory-item {
+    margin-bottom: 5px;
+}
+
+.glyphs-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.glyphs-list li {
+    margin-bottom: 5px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.glyphs-list li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #4CAF50;
+}
