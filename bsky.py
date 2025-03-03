@@ -64,8 +64,9 @@ class BlueskyBot:
             return None
         
         try:
-            profile = self.client.app.bsky.actor.getProfile({'actor': self.profile.handle})
-            self.logger.info(f"Retrieved profile for {profile.displayName} (@{profile.handle})")
+            # Updated to use the correct method
+            profile = self.client.get_profile(self.profile.handle)
+            self.logger.info(f"Retrieved profile for {profile.display_name} (@{profile.handle})")
             return profile
         except Exception as e:
             self.logger.error(f"Failed to get profile: {str(e)}")
@@ -78,16 +79,9 @@ class BlueskyBot:
             return False
         
         try:
-            self.logger.info(f"Posting update: {text[:50]}...")
-            response = self.client.com.atproto.repo.createRecord({
-                'repo': self.profile.did,
-                'collection': 'app.bsky.feed.post',
-                'record': {
-                    'text': text,
-                    'createdAt': datetime.now().isoformat(),
-                    '$type': 'app.bsky.feed.post'
-                }
-            })
+            self.logger.info(f"Posting update: {text[:300]}...")
+            # Updated to use the simplified post method
+            response = self.client.send_post(text=text)
             self.logger.info(f"Post successful, URI: {response.uri}")
             return response.uri
         except Exception as e:
@@ -106,28 +100,8 @@ class BlueskyBot:
             with open(image_path, 'rb') as f:
                 image_data = f.read()
             
-            upload = self.client.com.atproto.repo.uploadBlob(image_data)
-            
-            # Create the post with the image
-            self.logger.info(f"Posting update with image: {text[:50]}...")
-            response = self.client.com.atproto.repo.createRecord({
-                'repo': self.profile.did,
-                'collection': 'app.bsky.feed.post',
-                'record': {
-                    'text': text,
-                    'createdAt': datetime.now().isoformat(),
-                    '$type': 'app.bsky.feed.post',
-                    'embed': {
-                        '$type': 'app.bsky.embed.images',
-                        'images': [
-                            {
-                                'alt': alt_text,
-                                'image': upload.blob
-                            }
-                        ]
-                    }
-                }
-            })
+            # Updated to use the simplified post with image method
+            response = self.client.send_image(text=text, image=image_data, image_alt=alt_text)
             self.logger.info(f"Post with image successful, URI: {response.uri}")
             return response.uri
         except Exception as e:
@@ -141,7 +115,8 @@ class BlueskyBot:
             return []
         
         try:
-            feed = self.client.app.bsky.feed.getAuthorFeed({'actor': self.profile.handle, 'limit': limit})
+            # Updated to use the correct method
+            feed = self.client.get_author_feed(self.profile.handle, limit=limit)
             posts = []
             for item in feed.feed:
                 post = item.post
@@ -149,16 +124,16 @@ class BlueskyBot:
                     'uri': post.uri,
                     'cid': post.cid,
                     'text': post.record.text,
-                    'created_at': post.record.createdAt,
-                    'likes': post.likeCount if hasattr(post, 'likeCount') else 0,
-                    'replies': post.replyCount if hasattr(post, 'replyCount') else 0,
-                    'reposts': post.repostCount if hasattr(post, 'repostCount') else 0
+                    'created_at': post.record.created_at,
+                    'likes': getattr(post, 'like_count', 0),
+                    'replies': getattr(post, 'reply_count', 0),
+                    'reposts': getattr(post, 'repost_count', 0)
                 })
             self.logger.info(f"Retrieved {len(posts)} recent posts")
             return posts
         except Exception as e:
             self.logger.error(f"Failed to get recent posts: {str(e)}")
-            return []
+            return None
 
 def main():
     bot = BlueskyBot()
@@ -168,8 +143,8 @@ def main():
         # Get profile information
         profile = bot.get_profile()
         if profile:
-            print(f"Logged in as: {profile.displayName} (@{profile.handle})")
-            print(f"Followers: {profile.followersCount}, Following: {profile.followsCount}")
+            print(f"Logged in as: {profile.display_name} (@{profile.handle})")
+            print(f"Followers: {profile.followers_count}, Following: {profile.follows_count}")
             
             # Post a test message
             test_message = f"This is a test post from my Bluesky bot at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
@@ -180,9 +155,10 @@ def main():
             
             # Get recent posts
             recent_posts = bot.get_recent_posts(5)
-            print(f"\nRecent posts ({len(recent_posts)}):")
-            for i, post in enumerate(recent_posts, 1):
-                print(f"{i}. [{post['created_at']}] {post['text'][:50]}... ({post['likes']} likes, {post['replies']} replies)")
+            if recent_posts:
+                print(f"\nRecent posts ({len(recent_posts)}):")
+                for i, post in enumerate(recent_posts, 1):
+                    print(f"{i}. [{post['created_at']}] {post['text'][:300]}... ({post['likes']} likes, {post['replies']} replies)")
     else:
         print("Failed to log in to Bluesky")
 
